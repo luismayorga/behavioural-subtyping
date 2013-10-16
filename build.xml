@@ -1,6 +1,17 @@
-<project>
-	<target name="jar">
-		<mkdir dir="build/"/>
+<project name="Subtyping" default="all">
+
+    <target name="compile">
+        <mkdir dir="bin/"/>
+        <javac srcdir="src" destdir="bin" includeAntRuntime="false"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="bin"/>
+        <delete dir="build"/>
+    </target>
+
+	<target name="jar" depends="compile">
+		<mkdir dir="build"/>
 		<jar destfile="build/BehaviouralSubtype.jar">
 			<fileset dir="bin/" includes="**/*.class"></fileset>
 			<fileset dir="." includes="META-INF/**"></fileset>
@@ -8,4 +19,8 @@
 		</jar>
 		<copy todir="../Test/lib" file="build/BehaviouralSubtype.jar"/>
 	</target>
+
+    <target name="all" depends="clean, compile, jar">
+    </target>
+
 </project>
