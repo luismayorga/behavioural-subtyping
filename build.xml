@@ -1,0 +1,11 @@
+<project>
+	<target name="jar">
+		<mkdir dir="build/"/>
+		<jar destfile="build/BehaviouralSubtype.jar">
+			<fileset dir="bin/" includes="**/*.class"></fileset>
+			<fileset dir="." includes="META-INF/**"></fileset>
+			<zipgroupfileset dir="lib" includes="*.jar"/>
+		</jar>
+		<copy todir="../Test/lib" file="build/BehaviouralSubtype.jar"/>
+	</target>
+</project>
