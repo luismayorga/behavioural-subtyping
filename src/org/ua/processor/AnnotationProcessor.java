@@ -50,6 +50,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 	 */
 	private void processClass(Element element){
 		if (!element.getKind().equals(ElementKind.CLASS)) {
+			//TODO change for an error message showing Bad use of the annotations
 			throw new UnsupportedOperationException("The operation is only " +
 					"defined for classes");
 		}
