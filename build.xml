@@ -2,7 +2,7 @@
 
     <target name="compile">
         <mkdir dir="bin/"/>
-        <javac srcdir="src" destdir="bin" includeAntRuntime="false" debug="true"/>
+        <javac srcdir="src" destdir="bin" includeAntRuntime="false" debug="true" classpath="lib/com.microsoft.z3.jar"/>
     </target>
 
     <target name="clean">

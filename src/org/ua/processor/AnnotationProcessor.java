@@ -1,6 +1,7 @@
 package org.ua.processor;
 
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,8 +19,11 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -34,6 +38,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 	private Types typeUtils;
 	private Elements elementUtils;
 	private Set<Element> checked;
+	private SMTSolver SMT;
 
 	/**
 	 * {@inheritDoc}
@@ -44,6 +49,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 		messager = processingEnv.getMessager();
 		typeUtils = processingEnv.getTypeUtils();
 		elementUtils = processingEnv.getElementUtils();
+		SMT = SMTSolver.getInstance();
 		checked = new HashSet<Element>();
 	}
 
@@ -93,56 +99,79 @@ public class AnnotationProcessor extends AbstractProcessor {
 
 	/** Process both classes of a simple hierarchy
 	 * 
-	 * @param subClass Subclass of the hierarchy
-	 * @param superClass Superclass of the hierarchy
+	 * @param subClassType Subclass of the hierarchy
+	 * @param superClassType Superclass of the hierarchy
 	 */
-	private void processHierarchy(TypeMirror subClass, TypeMirror superClass ){
-		Element sbMethods = typeUtils.asElement(subClass);
-		Element spMethods = typeUtils.asElement(superClass);
-		
-		//Retrieve methods
-		List<? extends Element> subMethods = new LinkedList<Element>(sbMethods.getEnclosedElements());
-		List<? extends Element> superMethods = new LinkedList<Element>(spMethods.getEnclosedElements());
-		
-		Iterator<? extends Element> iterator = subMethods.iterator();
-		
+	private void processHierarchy(TypeMirror subClassType, TypeMirror superClassType ){
+		Element subClass = typeUtils.asElement(subClassType);
+		Element superclass = typeUtils.asElement(superClassType);
+
+		//Retrieve methods and members
+		List<? extends Element> subClassElements = new LinkedList<Element>(subClass.getEnclosedElements());
+		List<? extends Element> superClassElements = new LinkedList<Element>(superclass.getEnclosedElements());
+
+		Iterator<? extends Element> iterator = subClassElements.iterator();
+
 		while (iterator.hasNext()) {
-			Element method = iterator.next();
-			TypeMirror methodSignature = method.asType();
-			
-			for (Element element : superMethods) {
+			Element subClassElement = iterator.next();
+			//TODO Check visibility
+			for (Element superClassElement : superClassElements) {
 				// Not methods
-				if(!(element instanceof ExecutableElement) ||
-						!(method instanceof ExecutableElement)){
-					//TODO throw error
+				if(subClassElement.getModifiers().contains(Modifier.PRIVATE) ||
+						superClassElement.getModifiers().contains(Modifier.PRIVATE)){
+					continue;
 				}
-				//If both are public methods
-				if(typeUtils.isSameType(methodSignature, element.asType()) &&
-						!method.getModifiers().contains(Modifier.PRIVATE) &&
-						!element.getModifiers().contains(Modifier.PRIVATE)){
-					
-					ExecutableElement sigSup = (ExecutableElement)element;
-					ExecutableElement sigSub = (ExecutableElement)method;
-					
+				if(superClassElement.getKind().equals(ElementKind.METHOD) &&
+						subClassElement.getKind().equals(ElementKind.METHOD)){
+
+					ExecutableElement sigSub = (ExecutableElement)subClassElement;
+					ExecutableElement sigSup = (ExecutableElement)superClassElement;
+
 					//Methods being compared
-//					System.out.println(method.getSimpleName().toString() + " " + method.getKind().toString());
-//					System.out.println(element.getSimpleName().toString() + " " + element.getKind().toString());
-					
+					//System.out.println(method.getSimpleName().toString() + " " + method.getKind().toString());
+					//System.out.println(element.getSimpleName().toString() + " " + element.getKind().toString());
+
 					//Same signature
-					if(sigSub.getReturnType().equals(sigSup.getReturnType()) &&
-							sigSub.getTypeParameters().equals(sigSup.getTypeParameters()) &&
-							sigSub.getSimpleName().equals(sigSup.getSimpleName())){
-						
+					if(haveSameSignature(sigSub, sigSup)){
 						List<? extends AnnotationMirror> subAnns = sigSub.getAnnotationMirrors();
 						List<? extends AnnotationMirror> supAnns = sigSup.getAnnotationMirrors();
-						
+
 						compareAnnotations(subAnns, supAnns);
 					}
+
+				}else if (superClassElement.getKind().equals(ElementKind.FIELD) &&
+						subClassElement.getKind().equals(ElementKind.FIELD)){
+					//TODO fill case
+				}else{
+					continue;
 				}
 			}
 		}
 	}
-	
+
+	/**	Check whether the two methods provided have the same signature 
+	 * 
+	 * @param method1
+	 * @param method2
+	 * @return true if the methods have the same signature, false otherwise
+	 */
+	private boolean haveSameSignature(ExecutableElement method1, ExecutableElement method2){
+		//		Iterator<? extends VariableElement> iterator = method2.getParameters().iterator();
+		//		boolean sameType = true;
+		//		for (VariableElement param : method1.getParameters()) {
+		//			if(!iterator.hasNext() || !typeUtils.isSameType(param.asType(), iterator.next().asType())){
+		//				sameType = false;
+		//				break;
+		//			}
+		//		}
+		return  method1.getSimpleName().equals(method2.getSimpleName()) &&
+				method1.getReturnType().equals(method2.getReturnType()) &&
+				method1.getTypeParameters().equals(method2.getTypeParameters()) &&
+				method1.getModifiers().equals(method2.getModifiers()) &&
+				typeUtils.isSubsignature((ExecutableType)method1.asType(), (ExecutableType)method2.asType()) &&
+				typeUtils.isSubsignature((ExecutableType)method2.asType(), (ExecutableType)method1.asType());
+	}
+
 	/** Compare two sets of annotations, using as base the first set.
 	 * Annotations of the second list not contained in the first one will not be
 	 * analyzed
@@ -152,7 +181,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 	 */
 	private void compareAnnotations(List<? extends AnnotationMirror> lista,
 			List<? extends AnnotationMirror> listb){
-		
+
 		for (AnnotationMirror subAnn : lista) {
 			for (AnnotationMirror supAnn : listb) {
 				//Same annotation
@@ -160,24 +189,26 @@ public class AnnotationProcessor extends AbstractProcessor {
 					if(subAnn.getElementValues().size()>1 || supAnn.getElementValues().size()>1){
 						//TODO complain about the annotation having more than one value
 					}
-					
+
 					Collection<? extends AnnotationValue> valuesA = subAnn.getElementValues().values();
 					for (AnnotationValue annotationValue : valuesA) {
-						processAnnotation(annotationValue);
 					}
-					
+
 					Collection<? extends AnnotationValue> valuesB = supAnn.getElementValues().values();
 					for (AnnotationValue annotationValue : valuesB) {
-						processAnnotation(annotationValue);
 					}
+
+					SMT.isMoreRestrictiveThan("", "");
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * Converts an annotation in a string in a form that the SMT Solver is able
 	 * to understand
+	 * 
+	 * @param av Annotation string to convert
 	 */
 	private String processAnnotation(AnnotationValue av){
 		System.out.println(av.toString());
