@@ -1,12 +1,9 @@
 package org.ua.processor;
 
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -106,37 +103,18 @@ public class AnnotationProcessor extends AbstractProcessor {
 		Element subClass = typeUtils.asElement(subClassType);
 		Element superclass = typeUtils.asElement(superClassType);
 
-		//Retrieve methods and members
-		List<? extends Element> subClassElements = new LinkedList<Element>(subClass.getEnclosedElements());
-		List<? extends Element> superClassElements = new LinkedList<Element>(superclass.getEnclosedElements());
+		for(Element subClassElement : subClass.getEnclosedElements()){
+			for (Element superClassElement : superclass.getEnclosedElements()) {
 
-		Iterator<? extends Element> iterator = subClassElements.iterator();
-
-		while (iterator.hasNext()) {
-			Element subClassElement = iterator.next();
-			//TODO Check visibility
-			for (Element superClassElement : superClassElements) {
-				// Not methods
 				if(subClassElement.getModifiers().contains(Modifier.PRIVATE) ||
 						superClassElement.getModifiers().contains(Modifier.PRIVATE)){
 					continue;
-				}
-				if(superClassElement.getKind().equals(ElementKind.METHOD) &&
+				} else if(superClassElement.getKind().equals(ElementKind.METHOD) &&
 						subClassElement.getKind().equals(ElementKind.METHOD)){
 
-					ExecutableElement sigSub = (ExecutableElement)subClassElement;
-					ExecutableElement sigSup = (ExecutableElement)superClassElement;
-
-					//Methods being compared
-					//System.out.println(method.getSimpleName().toString() + " " + method.getKind().toString());
-					//System.out.println(element.getSimpleName().toString() + " " + element.getKind().toString());
-
 					//Same signature
-					if(haveSameSignature(sigSub, sigSup)){
-						List<? extends AnnotationMirror> subAnns = sigSub.getAnnotationMirrors();
-						List<? extends AnnotationMirror> supAnns = sigSup.getAnnotationMirrors();
-
-						compareAnnotations(subAnns, supAnns);
+					if(haveSameSignature((ExecutableElement)subClassElement, (ExecutableElement)superClassElement)){
+						compareAnnotations((ExecutableElement)subClassElement, (ExecutableElement)superClassElement);
 					}
 
 				}else if (superClassElement.getKind().equals(ElementKind.FIELD) &&
@@ -156,14 +134,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 	 * @return true if the methods have the same signature, false otherwise
 	 */
 	private boolean haveSameSignature(ExecutableElement method1, ExecutableElement method2){
-		//		Iterator<? extends VariableElement> iterator = method2.getParameters().iterator();
-		//		boolean sameType = true;
-		//		for (VariableElement param : method1.getParameters()) {
-		//			if(!iterator.hasNext() || !typeUtils.isSameType(param.asType(), iterator.next().asType())){
-		//				sameType = false;
-		//				break;
-		//			}
-		//		}
+
 		return  method1.getSimpleName().equals(method2.getSimpleName()) &&
 				method1.getReturnType().equals(method2.getReturnType()) &&
 				method1.getTypeParameters().equals(method2.getTypeParameters()) &&
@@ -179,11 +150,11 @@ public class AnnotationProcessor extends AbstractProcessor {
 	 * @param lista Set of annotations
 	 * @param listb Set of annotations
 	 */
-	private void compareAnnotations(List<? extends AnnotationMirror> lista,
-			List<? extends AnnotationMirror> listb){
+	private void compareAnnotations(ExecutableElement method1,
+			ExecutableElement method2){
 
-		for (AnnotationMirror subAnn : lista) {
-			for (AnnotationMirror supAnn : listb) {
+		for (AnnotationMirror subAnn : method1.getAnnotationMirrors()) {
+			for (AnnotationMirror supAnn : method2.getAnnotationMirrors()) {
 				//Same annotation
 				if(typeUtils.isSameType(subAnn.getAnnotationType(),supAnn.getAnnotationType())){
 					if(subAnn.getElementValues().size()>1 || supAnn.getElementValues().size()>1){
@@ -191,14 +162,9 @@ public class AnnotationProcessor extends AbstractProcessor {
 					}
 
 					Collection<? extends AnnotationValue> valuesA = subAnn.getElementValues().values();
-					for (AnnotationValue annotationValue : valuesA) {
-					}
-
 					Collection<? extends AnnotationValue> valuesB = supAnn.getElementValues().values();
-					for (AnnotationValue annotationValue : valuesB) {
-					}
-
-					SMT.isMoreRestrictiveThan("", "");
+					processAnnotation(valuesA.iterator().next(), method1, subAnn);
+					processAnnotation(valuesB.iterator().next(), method2, supAnn);
 				}
 			}
 		}
@@ -210,8 +176,11 @@ public class AnnotationProcessor extends AbstractProcessor {
 	 * 
 	 * @param av Annotation string to convert
 	 */
-	private String processAnnotation(AnnotationValue av){
-		System.out.println(av.toString());
-		return null;	
+	private void processAnnotation(AnnotationValue av, ExecutableElement ee, AnnotationMirror am){
+		final String discardRegex = "\\W+";
+		String[] identifiers = av.toString()
+				.replaceFirst("\\W+", "")
+				.split(discardRegex);
+		ee.accept(new IdentifierCheckerEV(), new IdentifierCheckerEV.CheckerInfo(identifiers, messager, am));
 	}
 }
