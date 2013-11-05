@@ -27,31 +27,37 @@ public class IdentifierCheckerEV implements ElementVisitor<Void, IdentifierCheck
 
 	@Override
 	public Void visit(Element e, CheckerInfo p) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Void visit(Element e) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Void visitPackage(PackageElement e, CheckerInfo p) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Void visitType(TypeElement e, CheckerInfo p) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Void visitVariable(VariableElement e, CheckerInfo p) {
-		// TODO Auto-generated method stub
+		boolean found = false;
+		for (String identifier : p.identifiers) {
+			if(identifier.length()>0 && !Character.isDigit(identifier.charAt(0))){
+				found = identifier.equals(e.getSimpleName().toString());
+				if(!found){
+					p.msgr.printMessage(Kind.ERROR, "The identifier '" +
+							identifier  + 
+							"'is not a valid method parameter", e, p.am);
+				}
+			}
+		}
 		return null;
 	}
 
@@ -59,7 +65,7 @@ public class IdentifierCheckerEV implements ElementVisitor<Void, IdentifierCheck
 	public Void visitExecutable(ExecutableElement e, CheckerInfo p) {
 		boolean found = false;
 		for (String identifier : p.identifiers) {
-			if(!Character.isDigit(identifier.charAt(0))){
+			if(identifier.length()>0 && !Character.isDigit(identifier.charAt(0))){
 				found = false;
 				for(VariableElement param : e.getParameters()){
 					if(param.getSimpleName().toString().equals(identifier)){
@@ -79,13 +85,11 @@ public class IdentifierCheckerEV implements ElementVisitor<Void, IdentifierCheck
 
 	@Override
 	public Void visitTypeParameter(TypeParameterElement e, CheckerInfo p) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Void visitUnknown(Element e, CheckerInfo p) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

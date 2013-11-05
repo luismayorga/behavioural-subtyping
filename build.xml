@@ -1,4 +1,4 @@
-<project name="Subtyping" default="all">
+<project name="Subtyping" default="compile">
 
     <target name="compile">
         <mkdir dir="bin/"/>
@@ -17,10 +17,6 @@
 			<fileset dir="." includes="META-INF/**"></fileset>
 			<zipgroupfileset dir="lib" includes="*.jar"/>
 		</jar>
-		<copy todir="../Test/lib" file="build/BehaviouralSubtype.jar"/>
 	</target>
-
-    <target name="all" depends="clean, compile, jar">
-    </target>
 
 </project>

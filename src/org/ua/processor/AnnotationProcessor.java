@@ -1,9 +1,7 @@
 package org.ua.processor;
 
 import java.lang.reflect.Modifier;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -17,15 +15,15 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.ElementVisitor;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic.Kind;
+
+import org.ua.processor.IdentifierCheckerEV.CheckerInfo;
 
 @SupportedAnnotationTypes({"org.ua.annotations.*"})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
@@ -54,12 +52,15 @@ public class AnnotationProcessor extends AbstractProcessor {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+	public boolean process(Set<? extends TypeElement> annotations,
+			RoundEnvironment roundEnv) {
+		
 		if(!roundEnv.processingOver()){
 			// Type of annotations present in the analyzed code
 			for (TypeElement annotation : annotations) {
 				// Elements annotated with them
 				for(Element el: roundEnv.getElementsAnnotatedWith(annotation)){
+					
 					if (!checked.contains(el.getEnclosingElement())) {
 						processClass(el.getEnclosingElement());
 					}
@@ -89,7 +90,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 					.getTypeElement("java.lang.Object").asType(), dt);
 			// If does not inherit from Object
 			if(!iguales){
-				processHierarchy(clase, dt);
+				processHierarchy(el, typeUtils.asElement(dt));
 			}
 		}
 	}
@@ -99,27 +100,31 @@ public class AnnotationProcessor extends AbstractProcessor {
 	 * @param subClassType Subclass of the hierarchy
 	 * @param superClassType Superclass of the hierarchy
 	 */
-	private void processHierarchy(TypeMirror subClassType, TypeMirror superClassType ){
-		Element subClass = typeUtils.asElement(subClassType);
-		Element superclass = typeUtils.asElement(superClassType);
+	private void processHierarchy(Element subClass, Element superClass ){
 
 		for(Element subClassElement : subClass.getEnclosedElements()){
-			for (Element superClassElement : superclass.getEnclosedElements()) {
+			
+			for (Element superClassElement : superClass.getEnclosedElements()) {
 
 				if(subClassElement.getModifiers().contains(Modifier.PRIVATE) ||
 						superClassElement.getModifiers().contains(Modifier.PRIVATE)){
 					continue;
 				} else if(superClassElement.getKind().equals(ElementKind.METHOD) &&
 						subClassElement.getKind().equals(ElementKind.METHOD)){
-
 					//Same signature
-					if(haveSameSignature((ExecutableElement)subClassElement, (ExecutableElement)superClassElement)){
-						compareAnnotations((ExecutableElement)subClassElement, (ExecutableElement)superClassElement);
+					if(typeUtils.isSameType(subClassElement.asType(),
+							superClassElement.asType())){
+						
+						checkAnnotations(superClassElement);
+						checkAnnotations(subClassElement);
 					}
+				}else if (superClassElement.getKind().equals(ElementKind.FIELD) 
+						&& subClassElement.getKind().equals(ElementKind.FIELD) 
+						&& subClassElement.getSimpleName()
+						.equals(superClassElement.getSimpleName())){
 
-				}else if (superClassElement.getKind().equals(ElementKind.FIELD) &&
-						subClassElement.getKind().equals(ElementKind.FIELD)){
-					//TODO fill case
+					checkAnnotations(superClassElement);
+					checkAnnotations(subClassElement);
 				}else{
 					continue;
 				}
@@ -127,60 +132,35 @@ public class AnnotationProcessor extends AbstractProcessor {
 		}
 	}
 
-	/**	Check whether the two methods provided have the same signature 
+	/**
+	 * Checks if the annotations of an element are well formed and
+	 * if all the identifiers used on them correspond to the element.
 	 * 
-	 * @param method1
-	 * @param method2
-	 * @return true if the methods have the same signature, false otherwise
+	 * @param e The element whose annotations must be checked
 	 */
-	private boolean haveSameSignature(ExecutableElement method1, ExecutableElement method2){
-
-		return  method1.getSimpleName().equals(method2.getSimpleName()) &&
-				method1.getReturnType().equals(method2.getReturnType()) &&
-				method1.getTypeParameters().equals(method2.getTypeParameters()) &&
-				method1.getModifiers().equals(method2.getModifiers()) &&
-				typeUtils.isSubsignature((ExecutableType)method1.asType(), (ExecutableType)method2.asType()) &&
-				typeUtils.isSubsignature((ExecutableType)method2.asType(), (ExecutableType)method1.asType());
-	}
-
-	/** Compare two sets of annotations, using as base the first set.
-	 * Annotations of the second list not contained in the first one will not be
-	 * analyzed
-	 * 
-	 * @param lista Set of annotations
-	 * @param listb Set of annotations
-	 */
-	private void compareAnnotations(ExecutableElement method1,
-			ExecutableElement method2){
-
-		for (AnnotationMirror subAnn : method1.getAnnotationMirrors()) {
-			for (AnnotationMirror supAnn : method2.getAnnotationMirrors()) {
-				//Same annotation
-				if(typeUtils.isSameType(subAnn.getAnnotationType(),supAnn.getAnnotationType())){
-					if(subAnn.getElementValues().size()>1 || supAnn.getElementValues().size()>1){
-						//TODO complain about the annotation having more than one value
-					}
-
-					Collection<? extends AnnotationValue> valuesA = subAnn.getElementValues().values();
-					Collection<? extends AnnotationValue> valuesB = supAnn.getElementValues().values();
-					processAnnotation(valuesA.iterator().next(), method1, subAnn);
-					processAnnotation(valuesB.iterator().next(), method2, supAnn);
-				}
-			}
+	private void checkAnnotations(Element e){
+		ElementVisitor<Void, CheckerInfo> ev;
+		CheckerInfo ci;
+		for (AnnotationMirror annotation : e.getAnnotationMirrors()) {
+			ev = new IdentifierCheckerEV();
+			ci = new CheckerInfo(retrieveIdentifiers(
+					annotation.getElementValues().values().iterator().next()),
+					messager,
+					annotation);
+			e.accept(ev, ci);
 		}
 	}
 
 	/**
-	 * Converts an annotation in a string in a form that the SMT Solver is able
-	 * to understand
+	 * Extracts the identifiers used within an annotation
 	 * 
-	 * @param av Annotation string to convert
+	 * @param av The annotation value
+	 * @return The array of identifiers
 	 */
-	private void processAnnotation(AnnotationValue av, ExecutableElement ee, AnnotationMirror am){
+	private String[] retrieveIdentifiers(AnnotationValue av){
 		final String discardRegex = "\\W+";
-		String[] identifiers = av.toString()
-				.replaceFirst("\\W+", "")
+		return 	av.toString()
+				.replaceFirst(discardRegex, "")
 				.split(discardRegex);
-		ee.accept(new IdentifierCheckerEV(), new IdentifierCheckerEV.CheckerInfo(identifiers, messager, am));
 	}
 }
