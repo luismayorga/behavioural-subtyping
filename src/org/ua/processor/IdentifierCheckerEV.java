@@ -54,7 +54,7 @@ public class IdentifierCheckerEV implements ElementVisitor<Void, IdentifierCheck
 				if(!found){
 					p.msgr.printMessage(Kind.ERROR, "The identifier '" +
 							identifier  + 
-							"'is not a valid method parameter", e, p.am);
+							"' is not a valid method parameter", e, p.am);
 				}
 			}
 		}
@@ -76,7 +76,7 @@ public class IdentifierCheckerEV implements ElementVisitor<Void, IdentifierCheck
 				if(!found){
 					p.msgr.printMessage(Kind.ERROR, "The identifier '" +
 							identifier  + 
-							"'is not a valid method parameter", e, p.am);
+							"' is not a valid method parameter", e, p.am);
 				}
 			}
 		}
