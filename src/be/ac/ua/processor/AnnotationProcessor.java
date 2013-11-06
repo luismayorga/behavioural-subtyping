@@ -22,7 +22,7 @@ import javax.tools.Diagnostic.Kind;
 
 import be.ac.ua.visitors.ClassProcessorEV;
 
-@SupportedAnnotationTypes({"org.ua.annotations.*"})
+@SupportedAnnotationTypes({"be.ac.ua.annotations.*"})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class AnnotationProcessor extends AbstractProcessor {
 
@@ -63,7 +63,6 @@ public class AnnotationProcessor extends AbstractProcessor {
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
 			RoundEnvironment roundEnv) {
-
 		if(!roundEnv.processingOver()){
 			// Type of annotations present in the analyzed code
 			for (TypeElement annotation : annotations) {

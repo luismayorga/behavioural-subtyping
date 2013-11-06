@@ -28,12 +28,11 @@ public class ClassProcessorEV implements ElementVisitor<Void, Void> {
 						.getTypeElement("java.lang.Object").asType(), dt);
 		// If does not inherit from Object
 		if(!same){
-			//e.accept(new ParentProcessorEV(),AnnotationProcessor.getTypeUtils().asElement(dt));
 			Element superElement = AnnotationProcessor.getTypeUtils().asElement(dt);
 
-			for(Element subClassElement : superElement.getEnclosedElements()){
+			for(Element subClassElement : e.getEnclosedElements()){
 				for (Element superClassElement : superElement.getEnclosedElements()) {
-
+					
 					if(subClassElement.getModifiers().contains(Modifier.PRIVATE) ||
 							superClassElement.getModifiers().contains(Modifier.PRIVATE)){
 						continue;

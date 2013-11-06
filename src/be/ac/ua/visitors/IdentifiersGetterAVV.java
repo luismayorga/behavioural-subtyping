@@ -65,6 +65,8 @@ public class IdentifiersGetterAVV implements AnnotationValueVisitor<List<String>
 	@Override
 	public List<String> visitString(String s, Void p) {
 		final String discardRegex = "\\W+";
+		System.out.println(Arrays.toString(s.replaceFirst(discardRegex, "")
+						.split(discardRegex)));
 		return new ArrayList<String>(Arrays
 				.asList(s.replaceFirst(discardRegex, "")
 						.split(discardRegex)));

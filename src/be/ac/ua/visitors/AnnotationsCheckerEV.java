@@ -26,10 +26,11 @@ public class AnnotationsCheckerEV implements ElementVisitor<Void, Void> {
 		CheckerInfo ci;
 
 		for (AnnotationMirror annotation : e.getAnnotationMirrors()) {
+			
 			identifierChecker = new IdentifierCheckerEV();
 			List<String> identifiers = annotation.getElementValues().values()
 					.iterator().next().accept(new IdentifiersGetterAVV(), null);
-			System.out.println(Arrays.toString(identifiers.toArray()));
+			
 			ci = new CheckerInfo(identifiers, annotation);
 			e.accept(identifierChecker, ci);
 		}
