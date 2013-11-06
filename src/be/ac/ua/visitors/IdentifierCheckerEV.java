@@ -1,6 +1,7 @@
-package org.ua.processor;
+package be.ac.ua.visitors;
 
-import javax.annotation.processing.Messager;
+import java.util.List;
+
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementVisitor;
@@ -11,16 +12,17 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic.Kind;
 
+import be.ac.ua.processor.AnnotationProcessor;
+
 public class IdentifierCheckerEV implements ElementVisitor<Void, IdentifierCheckerEV.CheckerInfo> {
 
-	static class CheckerInfo{
-		String[] identifiers;
-		Messager msgr;
+	public static class CheckerInfo{
+		List<String> identifiers;
 		AnnotationMirror am;
-		public CheckerInfo(String[] identifiers, Messager msgr, AnnotationMirror am) {
+		
+		public CheckerInfo(List<String> identifiers, AnnotationMirror am) {
 			super();
 			this.identifiers = identifiers;
-			this.msgr = msgr;
 			this.am = am;
 		}
 	}
@@ -52,8 +54,8 @@ public class IdentifierCheckerEV implements ElementVisitor<Void, IdentifierCheck
 			if(identifier.length()>0 && !Character.isDigit(identifier.charAt(0))){
 				found = identifier.equals(e.getSimpleName().toString());
 				if(!found){
-					p.msgr.printMessage(Kind.ERROR, "The identifier '" +
-							identifier  + 
+					AnnotationProcessor.getMessager()
+					.printMessage(Kind.ERROR, "The identifier '" + identifier + 
 							"' is not a valid method parameter", e, p.am);
 				}
 			}
@@ -74,8 +76,8 @@ public class IdentifierCheckerEV implements ElementVisitor<Void, IdentifierCheck
 					}
 				}
 				if(!found){
-					p.msgr.printMessage(Kind.ERROR, "The identifier '" +
-							identifier  + 
+					AnnotationProcessor.getMessager()
+					.printMessage(Kind.ERROR, "The identifier '" + identifier + 
 							"' is not a valid method parameter", e, p.am);
 				}
 			}

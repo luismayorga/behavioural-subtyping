@@ -1,4 +1,4 @@
-package org.ua.processor;
+package be.ac.ua.processor;
 
 import com.microsoft.z3.Context;
 import com.microsoft.z3.Z3Exception;

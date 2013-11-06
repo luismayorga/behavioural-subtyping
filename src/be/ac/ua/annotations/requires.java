@@ -1,4 +1,4 @@
-package org.ua.annotations;
+package be.ac.ua.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
