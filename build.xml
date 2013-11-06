@@ -1,8 +1,16 @@
 <project name="Subtyping" default="compile">
 
+    <path id="build-classpath">
+        <fileset dir="lib/">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
     <target name="compile">
         <mkdir dir="bin/"/>
-        <javac srcdir="src" destdir="bin" includeAntRuntime="false" debug="true" classpath="lib/com.microsoft.z3.jar"/>
+        <javac srcdir="src" destdir="bin" includeAntRuntime="false" debug="true">
+            <classpath refid="build-classpath"/>
+        </javac>
     </target>
 
     <target name="clean">
@@ -10,13 +18,13 @@
         <delete dir="build"/>
     </target>
 
-	<target name="jar" depends="compile">
-		<mkdir dir="build"/>
-		<jar destfile="build/BehaviouralSubtype.jar">
-			<fileset dir="bin/" includes="**/*.class"></fileset>
-			<fileset dir="." includes="META-INF/**"></fileset>
-			<zipgroupfileset dir="lib" includes="*.jar"/>
-		</jar>
-	</target>
+    <target name="jar" depends="compile">
+        <mkdir dir="build"/>
+        <jar destfile="build/BehaviouralSubtype.jar">
+            <fileset dir="bin/" includes="**/*.class"></fileset>
+            <fileset dir="." includes="META-INF/**"></fileset>
+            <zipgroupfileset dir="lib" includes="*.jar"/>
+        </jar>
+    </target>
 
 </project>
