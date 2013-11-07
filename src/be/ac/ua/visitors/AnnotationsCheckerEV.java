@@ -1,5 +1,4 @@
 package be.ac.ua.visitors;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.lang.model.element.AnnotationMirror;
@@ -10,6 +9,8 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
+
+import org.parboiled.support.ParsingResult;
 
 import be.ac.ua.visitors.IdentifierCheckerEV.CheckerInfo;
 
@@ -28,11 +29,11 @@ public class AnnotationsCheckerEV implements ElementVisitor<Void, Void> {
 		for (AnnotationMirror annotation : e.getAnnotationMirrors()) {
 			
 			identifierChecker = new IdentifierCheckerEV();
-			List<String> identifiers = annotation.getElementValues().values()
-					.iterator().next().accept(new IdentifiersGetterAVV(), null);
+			ParsingResult<?> identifiers = annotation.getElementValues().values()
+					.iterator().next().accept(new ContractParserAVV(), null);
 			
-			ci = new CheckerInfo(identifiers, annotation);
-			e.accept(identifierChecker, ci);
+//			ci = new CheckerInfo(identifiers, annotation);
+//			e.accept(identifierChecker, ci);
 		}
 		return null;
 	}
