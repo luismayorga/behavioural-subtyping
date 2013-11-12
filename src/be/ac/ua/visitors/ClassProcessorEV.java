@@ -45,8 +45,8 @@ public class ClassProcessorEV implements ElementVisitor<Void, Void> {
 											&& subClassElement.getSimpleName()
 											.equals(superClassElement.getSimpleName()))){
 
-						superClassElement.accept(new AnnotationsCheckerEV(), null);
-						subClassElement.accept(new AnnotationsCheckerEV(), null);
+						superClassElement.accept(new AnnotationsParserEV(), null);
+						subClassElement.accept(new AnnotationsParserEV(), null);
 						//TODO Join contracts
 					}else{
 						continue;

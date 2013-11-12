@@ -1,6 +1,4 @@
 package be.ac.ua.visitors;
-import java.util.List;
-
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementVisitor;
@@ -10,30 +8,24 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 
-import org.parboiled.support.ParsingResult;
-
-import be.ac.ua.visitors.IdentifierCheckerEV.CheckerInfo;
-
 /**
  * Class that implements an ElementVisitor that adds the functionality
  * of checking if the annotations are well formed and
  * if all the identifiers used on them correspond to the element.
  */
-public class AnnotationsCheckerEV implements ElementVisitor<Void, Void> {
+public class AnnotationsParserEV implements ElementVisitor<Void, Void> {
 
 	@Override
 	public Void visit(Element e, Void p) {
-		ElementVisitor<Void, CheckerInfo> identifierChecker;
-		CheckerInfo ci;
-
+		ContractParserAVV Parser;
 		for (AnnotationMirror annotation : e.getAnnotationMirrors()) {
-			
-			identifierChecker = new IdentifierCheckerEV();
-			ParsingResult<?> identifiers = annotation.getElementValues().values()
-					.iterator().next().accept(new ContractParserAVV(), null);
-			
-//			ci = new CheckerInfo(identifiers, annotation);
-//			e.accept(identifierChecker, ci);
+			Parser = new ContractParserAVV();
+			if(annotation.getElementValues().size()>1){
+				//TODO throw error
+			} else {
+				annotation.getElementValues().values().iterator().next()
+				.accept(Parser, null);
+			}
 		}
 		return null;
 	}

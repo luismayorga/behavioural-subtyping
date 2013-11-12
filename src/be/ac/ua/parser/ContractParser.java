@@ -9,62 +9,86 @@ public class ContractParser extends BaseParser<AstNode>{
 	// Contract -> Exp
 	public Rule Contract(){
 		Var<AstNode> n=new Var<AstNode>(new AstNode("Contract"));
-		return Sequence(Optional(Expression()),
+		return Sequence(
+				Optional(Expression()),
 				push(n.get()));
 	}
-	
-	// Exp -> Exp | (Exp) | Exp op Exp | Lit op Lit 
+
+	// Exp -> (Exp) | Exp op Exp | Lit op Lit 
 	Rule Expression(){
-		return FirstOf(Sequence(Spacing(),Expression(),Spacing()),
+		return FirstOf(
 				Sequence(OPENPAR,Expression(),CLOSEPAR),
-				Sequence(Expression(),Operator(),Expression()),
-				Sequence(Literal(),Operator(),Literal()));
+				Sequence(Literal(),Operator(),Literal(),
+				Sequence(Expression(),Operator(),Expression())));
 	}
 
-
-	// Lit -> LogicalValue | Number | String
+	// Lit -> LogicalValue | Number | String | NullVal | (Lit)
 	Rule Literal(){
 		return FirstOf(LogicalValue(),
 				Number(),
-				StringLit());
+				StringLit(),
+				NullValue(),
+				Sequence(OPENPAR,
+						Literal(),
+						CLOSEPAR));
 	}
-	
+
 	// Operator -> || | && | = | == | + | - | / | *
 	Rule Operator(){
-		Var<AstNode> n=new Var<AstNode>(new AstNode("Operator"));
-		return Sequence(FirstOf(ACCOP,STAROP),
-				n.get().addAttribute("value", match().trim(), "string"),
-				push(n.get()));
+		return FirstOf(
+				ORDOP,
+				ANDOP,
+				EQOP,
+				EQEQOP,
+				PLUSOP,
+				MINOP,
+				DIVOP,
+				STAROP
+				);
 	}
-	
+
+	//Identifier
+	Rule Identifier(){
+		return Sequence(IdentifierValidChar(),
+				ZeroOrMore(FirstOf(Digit(),
+						IdentifierValidChar())));
+	}
+
 	// Literals
 
 	// LogicalValue -> true | false
 	Rule LogicalValue(){
-		Var<AstNode> n=new Var<AstNode>(new AstNode("Boolean"));
-		return Sequence(FirstOf(String("true"), String("false")),
-				n.get().addAttribute("value", match().trim(), "bool"),
-				push(n.get()));
+		return FirstOf(
+				String("true"), 
+				String("false"));
 	}
-	
-	// Number -> {Digit}[.{Digit}]
+
+
+	// SimpleNum -> Digit+
+	Rule SimpleNum(){
+		return OneOrMore(Digit());
+	}
+
+	// Number -> Digit+[.Digit+]
 	Rule Number(){
-		Var<AstNode> n=new Var<AstNode>(new AstNode("Number"));
-		return Sequence(
-				OneOrMore(Digit()),	Optional(Sequence(ACCOP, OneOrMore(Digit()))),
-				n.get().addAttribute("value", match().trim(), "int"),
-				push(n.get()));
+		return FirstOf(
+				Sequence(HEXPREFIX,SimpleNum()),
+				Sequence(SimpleNum(),ACCOP,SimpleNum()));
 	}
-	
+
 	// String -> "[^"]"
 	Rule StringLit(){
 		return Sequence(String("\""),
 				TestNot(String("\"")),
-						String("\""));
+				String("\""));
 	}
 
 	// Basic types
 
+	//NullVal -> "null"
+	Rule NullValue(){
+		return String("null");
+	}
 	// Digit -> 0-9
 	Rule Digit(){
 		return CharRange('0', '9');
@@ -77,11 +101,19 @@ public class ContractParser extends BaseParser<AstNode>{
 
 	// Spacing -> "\"* | t*
 	Rule Spacing(){
-		return OneOrMore(AnyOf("\t ").label("Whitespace"));
+		return OneOrMore(AnyOf("\t "));
 	}
 
 	Rule ACCOP = String(".");
 	Rule STAROP = String("*");
+	Rule ANDOP = String("&&");
+	Rule ORDOP = String("||");
+	Rule EQOP = String("=");
+	Rule EQEQOP = String("==");
+	Rule PLUSOP = String("+");
+	Rule MINOP = String("-");
+	Rule DIVOP = String("/");
 	Rule OPENPAR = String("(");
 	Rule CLOSEPAR = String(")");
+	Rule HEXPREFIX = String("0x");
 }

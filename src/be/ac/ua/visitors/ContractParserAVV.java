@@ -1,5 +1,6 @@
 package be.ac.ua.visitors;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.lang.model.element.AnnotationMirror;
@@ -72,6 +73,7 @@ public class ContractParserAVV implements AnnotationValueVisitor<ParsingResult<?
 		ReportingParseRunner<?> rpr = new ReportingParseRunner<Object>(parser.Contract());
 		ParsingResult<?> result = rpr.run(s);
 		//TODO Process parsing result
+		Arrays.toString(result.parseErrors.toArray());
 		return result;
 	}
 
