@@ -19,13 +19,9 @@ public class AnnotationsParserEV implements ElementVisitor<Void, Void> {
 	public Void visit(Element e, Void p) {
 		ContractParserAVV Parser;
 		for (AnnotationMirror annotation : e.getAnnotationMirrors()) {
-			Parser = new ContractParserAVV();
-			if(annotation.getElementValues().size()>1){
-				//TODO throw error
-			} else {
+				Parser = new ContractParserAVV();
 				annotation.getElementValues().values().iterator().next()
 				.accept(Parser, null);
-			}
 		}
 		return null;
 	}

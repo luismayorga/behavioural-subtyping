@@ -29,25 +29,21 @@ public class ClassProcessorEV implements ElementVisitor<Void, Void> {
 		// If does not inherit from Object
 		if(!same){
 			Element superElement = AnnotationProcessor.getTypeUtils().asElement(dt);
-
 			for(Element subClassElement : e.getEnclosedElements()){
 				for (Element superClassElement : superElement.getEnclosedElements()) {
-					
-					if(subClassElement.getModifiers().contains(Modifier.PRIVATE) ||
-							superClassElement.getModifiers().contains(Modifier.PRIVATE)){
+					if(subClassElement.getModifiers().contains(Modifier.PRIVATE) 
+							|| superClassElement.getModifiers().contains(Modifier.PRIVATE)){
 						continue;
-					} else if((superClassElement.getKind().equals(ElementKind.METHOD) 
+					} else if(subClassElement.getSimpleName().equals(superClassElement.getSimpleName()) && 
+							((superClassElement.getKind().equals(ElementKind.METHOD) 
 							&& subClassElement.getKind().equals(ElementKind.METHOD)
 							&& AnnotationProcessor.getTypeUtils().isSameType(subClassElement.asType(),
 									superClassElement.asType()))
-									|| (superClassElement.getKind().equals(ElementKind.FIELD) 
-											&& subClassElement.getKind().equals(ElementKind.FIELD) 
-											&& subClassElement.getSimpleName()
-											.equals(superClassElement.getSimpleName()))){
-
+							|| (superClassElement.getKind().equals(ElementKind.FIELD) 
+							&& subClassElement.getKind().equals(ElementKind.FIELD)))){
+						
 						superClassElement.accept(new AnnotationsParserEV(), null);
 						subClassElement.accept(new AnnotationsParserEV(), null);
-						//TODO Join contracts
 					}else{
 						continue;
 					}

@@ -1,7 +1,5 @@
 package be.ac.ua.visitors;
 
-import static org.parboiled.errors.ErrorUtils.printParseErrors;
-
 import java.util.List;
 
 import javax.lang.model.element.AnnotationMirror;
@@ -10,103 +8,87 @@ import javax.lang.model.element.AnnotationValueVisitor;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
-import org.parboiled.Parboiled;
-import org.parboiled.parserunners.ReportingParseRunner;
-import org.parboiled.support.ParseTreeUtils;
-import org.parboiled.support.ParsingResult;
-
-import be.ac.ua.parser.ContractParser;
-
-public class ContractParserAVV implements AnnotationValueVisitor<ParsingResult<?>, Void> {
+public class ContractParserAVV implements AnnotationValueVisitor<Void, Void> {
 
 	@Override
-	public ParsingResult<?> visit(AnnotationValue av, Void p) {
+	public Void visit(AnnotationValue av, Void p) {
 		return null;
 	}
 
 	@Override
-	public ParsingResult<?> visit(AnnotationValue av) {
+	public Void visit(AnnotationValue av) {
 		return null;
 	}
 
 	@Override
-	public ParsingResult<?> visitBoolean(boolean b, Void p) {
+	public Void visitBoolean(boolean b, Void p) {
 		return null;
 	}
 
 	@Override
-	public ParsingResult<?> visitByte(byte b, Void p) {
+	public Void visitByte(byte b, Void p) {
 		return null;
 	}
 
 	@Override
-	public ParsingResult<?> visitChar(char c, Void p) {
+	public Void visitChar(char c, Void p) {
 		return null;
 	}
 
 	@Override
-	public ParsingResult<?> visitDouble(double d, Void p) {
+	public Void visitDouble(double d, Void p) {
 		return null;
 	}
 
 	@Override
-	public ParsingResult<?> visitFloat(float f, Void p) {
+	public Void visitFloat(float f, Void p) {
 		return null;
 	}
 
 	@Override
-	public ParsingResult<?> visitInt(int i, Void p) {
+	public Void visitInt(int i, Void p) {
 		return null;
 	}
 
 	@Override
-	public ParsingResult<?> visitLong(long i, Void p) {
+	public Void visitLong(long i, Void p) {
 		return null;
 	}
 
 	@Override
-	public ParsingResult<?> visitShort(short s, Void p) {
+	public Void visitShort(short s, Void p) {
 		return null;
 	}
 
 	@Override
-	public ParsingResult<?> visitString(String s, Void p) {
+	public Void visitString(String s, Void p) {
 		System.out.println("String to parse: " + s);
-		ContractParser parser = Parboiled.createParser(ContractParser.class);
-		ReportingParseRunner<?> rpr = new ReportingParseRunner<Object>(parser.Contract());
-		ParsingResult<?> result = rpr.run(s);
-		//TODO Process parsing result
-		if (result.hasErrors()) {
-			System.out.println("Errors found parsing the contract: " + s +"\n" 
-					+ printParseErrors(result));
-		}
-		ParseTreeUtils.printNodeTree(result);
-		return result;
-	}
-
-	@Override
-	public ParsingResult<?> visitType(TypeMirror t, Void p) {
 		return null;
 	}
 
 	@Override
-	public ParsingResult<?> visitEnumConstant(VariableElement c, Void p) {
+	public Void visitType(TypeMirror t, Void p) {
 		return null;
 	}
 
 	@Override
-	public ParsingResult<?> visitAnnotation(AnnotationMirror a, Void p) {
+	public Void visitEnumConstant(VariableElement c, Void p) {
 		return null;
 	}
 
 	@Override
-	public ParsingResult<?> visitArray(List<? extends AnnotationValue> vals,
+	public Void visitAnnotation(AnnotationMirror a, Void p) {
+		return null;
+	}
+
+	@Override
+	public Void visitArray(List<? extends AnnotationValue> vals,
 			Void p) {
 		return null;
 	}
 
 	@Override
-	public ParsingResult<?> visitUnknown(AnnotationValue av, Void p) {
+	public Void visitUnknown(AnnotationValue av, Void p) {
 		return null;
 	}
 
