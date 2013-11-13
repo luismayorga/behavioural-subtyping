@@ -1,6 +1,7 @@
 package be.ac.ua.visitors;
 
-import java.util.Arrays;
+import static org.parboiled.errors.ErrorUtils.printParseErrors;
+
 import java.util.List;
 
 import javax.lang.model.element.AnnotationMirror;
@@ -10,8 +11,9 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 import org.parboiled.Parboiled;
-import org.parboiled.support.ParsingResult;
 import org.parboiled.parserunners.ReportingParseRunner;
+import org.parboiled.support.ParseTreeUtils;
+import org.parboiled.support.ParsingResult;
 
 import be.ac.ua.parser.ContractParser;
 
@@ -69,11 +71,16 @@ public class ContractParserAVV implements AnnotationValueVisitor<ParsingResult<?
 
 	@Override
 	public ParsingResult<?> visitString(String s, Void p) {
+		System.out.println("String to parse: " + s);
 		ContractParser parser = Parboiled.createParser(ContractParser.class);
 		ReportingParseRunner<?> rpr = new ReportingParseRunner<Object>(parser.Contract());
 		ParsingResult<?> result = rpr.run(s);
 		//TODO Process parsing result
-		Arrays.toString(result.parseErrors.toArray());
+		if (result.hasErrors()) {
+			System.out.println("Errors found parsing the contract: " + s +"\n" 
+					+ printParseErrors(result));
+		}
+		ParseTreeUtils.printNodeTree(result);
 		return result;
 	}
 
