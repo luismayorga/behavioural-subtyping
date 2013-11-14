@@ -2,9 +2,16 @@ package be.ac.ua.contracts;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
+
+import javax.lang.model.type.DeclaredType;
+import javax.tools.Diagnostic.Kind;
+
+import be.ac.ua.processor.AnnotationProcessor;
 
 public class ContractList implements List<Contract>{
 
@@ -17,15 +24,31 @@ public class ContractList implements List<Contract>{
 	
 	public List<ContractPair> join(ContractList subList){
 		ArrayList<ContractPair> temp = new ArrayList<ContractPair>();
+		Set<DeclaredType> set = new HashSet<DeclaredType>();
+		boolean found;
 		for (Contract contract : list) {
+			found = false;
 			for (Contract con : subList) {
 				if(contract.getAm().getAnnotationType()
 						.equals(con.getAm().getAnnotationType())){
+					
 					temp.add(contract.join(con));
+					set.add(contract.getAm().getAnnotationType());
+					found = true;
+					break;
 				}
 			}
+			if(!found){
+				AnnotationProcessor.getMessager().printMessage(Kind.NOTE, 
+						"Contract not defined for subclass", contract.getEm(), contract.getAm());
+			}
 		}
-		//TODO Complain about inherited annotations and annotations not overriding
+		for (Contract con : subList) {
+			if(!set.contains(con.getAm().getAnnotationType())){
+				AnnotationProcessor.getMessager().printMessage(Kind.ERROR, 
+						"Contract not defined in superclass", con.getEm(), con.getAm());
+			}
+		}
 		return temp;
 	}
 

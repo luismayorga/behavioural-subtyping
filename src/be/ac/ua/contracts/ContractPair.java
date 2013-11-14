@@ -28,7 +28,6 @@ public class ContractPair {
 	}
 	
 	public void compare(){
-		String bench = superClassContract.getContent();
 		Context ctx=null;
 		try {
 			ctx = new Context();
