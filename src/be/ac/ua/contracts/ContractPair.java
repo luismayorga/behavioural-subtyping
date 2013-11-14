@@ -1,5 +1,8 @@
 package be.ac.ua.contracts;
 
+import com.microsoft.z3.Context;
+import com.microsoft.z3.Z3Exception;
+
 public class ContractPair {
 	Contract superClassContract;
 	Contract subClassContract;
@@ -22,5 +25,15 @@ public class ContractPair {
 		return "ContractPair: " + super.toString() + "\n" +
 				superClassContract.toString() + "\n" +
 				subClassContract.toString();
+	}
+	
+	public void compare(){
+		String bench = superClassContract.getContent();
+		Context ctx=null;
+		try {
+			ctx = new Context();
+		} catch (Z3Exception e) {e.printStackTrace();}
+		ctx.Dispose();
+		
 	}
 }

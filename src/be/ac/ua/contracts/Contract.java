@@ -1,5 +1,7 @@
 package be.ac.ua.contracts;
 
+import java.util.List;
+
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 
@@ -48,4 +50,5 @@ public class Contract {
 				"Annotation: " + am.getAnnotationType().toString() + "\n" +
 				"Element: " + em.getSimpleName().toString();
 	}
+
 }

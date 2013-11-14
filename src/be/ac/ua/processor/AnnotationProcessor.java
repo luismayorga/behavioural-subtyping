@@ -25,7 +25,6 @@ public class AnnotationProcessor extends AbstractProcessor {
 	private static Types typeUtils;
 	private static Elements elementUtils;
 	private Set<Element> checked;
-//	private SMTSolverWrapper SMTsw;
 
 	public static Messager getMessager() {
 		return messager;
@@ -48,7 +47,6 @@ public class AnnotationProcessor extends AbstractProcessor {
 		messager = processingEnv.getMessager();
 		typeUtils = processingEnv.getTypeUtils();
 		elementUtils = processingEnv.getElementUtils();
-//		SMTsw = SMTSolverWrapper.getInstance();
 		checked = new HashSet<Element>();
 	}
 

@@ -1,7 +1,6 @@
 package be.ac.ua.visitors;
 
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.lang.model.element.Element;
@@ -14,7 +13,6 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
-import be.ac.ua.contracts.Contract;
 import be.ac.ua.contracts.ContractList;
 import be.ac.ua.contracts.ContractPair;
 import be.ac.ua.processor.AnnotationProcessor;
@@ -51,8 +49,11 @@ public class ClassProcessorEV implements ElementVisitor<Void, Void> {
 								.accept(new AnnotationsParserEV(), null);
 						ContractList subClassContracts = subClassElement
 								.accept(new AnnotationsParserEV(), null);
+						
 						List<ContractPair> join = superClassContracts.join(subClassContracts);
-						System.out.println(Arrays.toString(join.toArray()));
+						for (ContractPair contractPair : join) {
+							contractPair.compare();
+						}
 					}else{
 						continue;
 					}
