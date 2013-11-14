@@ -8,56 +8,63 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 
+import be.ac.ua.contracts.Contract;
+import be.ac.ua.contracts.ContractList;
+
 /**
  * Class that implements an ElementVisitor that adds the functionality
  * of checking if the annotations are well formed and
  * if all the identifiers used on them correspond to the element.
  */
-public class AnnotationsParserEV implements ElementVisitor<Void, Void> {
+public class AnnotationsParserEV implements ElementVisitor<ContractList, Void> {
 
 	@Override
-	public Void visit(Element e, Void p) {
-		ContractParserAVV Parser;
+	public ContractList visit(Element e, Void p) {
+		ContractList cons = new ContractList();
+		ContractProcessorAVV Parser;
 		for (AnnotationMirror annotation : e.getAnnotationMirrors()) {
-				Parser = new ContractParserAVV();
-				annotation.getElementValues().values().iterator().next()
+				Parser = new ContractProcessorAVV();
+				Contract cont = annotation.getElementValues().values().iterator().next()
 				.accept(Parser, null);
+				cont.setAm(annotation);
+				cont.setEm(e);
+				cons.add(cont);
 		}
-		return null;
+		return cons;
 	}
 
 	@Override
-	public Void visit(Element e) {
+	public ContractList visit(Element e) {
 		return visit(e,null);
 	}
 
 	@Override
-	public Void visitPackage(PackageElement e, Void p) {
+	public ContractList visitPackage(PackageElement e, Void p) {
 		return null;
 	}
 
 	@Override
-	public Void visitType(TypeElement e, Void p) {
+	public ContractList visitType(TypeElement e, Void p) {
 		return null;
 	}
 
 	@Override
-	public Void visitVariable(VariableElement e, Void p) {
+	public ContractList visitVariable(VariableElement e, Void p) {
 		return visit(e,null);
 	}
 
 	@Override
-	public Void visitExecutable(ExecutableElement e, Void p) {
+	public ContractList visitExecutable(ExecutableElement e, Void p) {
 		return visit(e,null);
 	}
 
 	@Override
-	public Void visitTypeParameter(TypeParameterElement e, Void p) {
+	public ContractList visitTypeParameter(TypeParameterElement e, Void p) {
 		return null;
 	}
 
 	@Override
-	public Void visitUnknown(Element e, Void p) {
+	public ContractList visitUnknown(Element e, Void p) {
 		return null;
 	}
 

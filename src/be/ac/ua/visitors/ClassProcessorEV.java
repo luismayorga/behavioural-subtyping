@@ -1,6 +1,8 @@
 package be.ac.ua.visitors;
 
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -12,6 +14,9 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
+import be.ac.ua.contracts.Contract;
+import be.ac.ua.contracts.ContractList;
+import be.ac.ua.contracts.ContractPair;
 import be.ac.ua.processor.AnnotationProcessor;
 /**
  * Processes a class, extracting its structure to an internal representation 
@@ -42,8 +47,12 @@ public class ClassProcessorEV implements ElementVisitor<Void, Void> {
 							|| (superClassElement.getKind().equals(ElementKind.FIELD) 
 							&& subClassElement.getKind().equals(ElementKind.FIELD)))){
 						
-						superClassElement.accept(new AnnotationsParserEV(), null);
-						subClassElement.accept(new AnnotationsParserEV(), null);
+						ContractList superClassContracts = superClassElement
+								.accept(new AnnotationsParserEV(), null);
+						ContractList subClassContracts = subClassElement
+								.accept(new AnnotationsParserEV(), null);
+						List<ContractPair> join = superClassContracts.join(subClassContracts);
+						System.out.println(Arrays.toString(join.toArray()));
 					}else{
 						continue;
 					}

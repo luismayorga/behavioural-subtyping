@@ -1,0 +1,147 @@
+package be.ac.ua.contracts;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+
+public class ContractList implements List<Contract>{
+
+	private ArrayList<Contract> list;
+	
+	public ContractList() {
+		super();
+		list = new ArrayList<Contract>();
+	}
+	
+	public List<ContractPair> join(ContractList subList){
+		ArrayList<ContractPair> temp = new ArrayList<ContractPair>();
+		for (Contract contract : list) {
+			for (Contract con : subList) {
+				if(contract.getAm().getAnnotationType()
+						.equals(con.getAm().getAnnotationType())){
+					temp.add(contract.join(con));
+				}
+			}
+		}
+		//TODO Complain about inherited annotations and annotations not overriding
+		return temp;
+	}
+
+	@Override
+	public int size() {
+		return list.size();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return list.isEmpty();
+	}
+
+	@Override
+	public boolean contains(Object o) {
+		return list.contains(o);
+	}
+
+	@Override
+	public Iterator<Contract> iterator() {
+		return list.iterator();
+	}
+
+	@Override
+	public Object[] toArray() {
+		return list.toArray();
+	}
+
+	@Override
+	public <T> T[] toArray(T[] a) {
+		return list.toArray(a);
+	}
+
+	@Override
+	public boolean add(Contract e) {
+		return list.add(e);
+	}
+
+	@Override
+	public boolean remove(Object o) {
+		return list.remove(o);
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		return list.containsAll(c);
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends Contract> c) {
+		return list.containsAll(c);
+	}
+
+	@Override
+	public boolean addAll(int index, Collection<? extends Contract> c) {
+		return list.addAll(c);
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		return list.removeAll(c);
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> c) {
+		return list.retainAll(c);
+	}
+
+	@Override
+	public void clear() {
+		list.clear();
+	}
+
+	@Override
+	public Contract get(int index) {
+		return list.get(index);
+	}
+
+	@Override
+	public Contract set(int index, Contract element) {
+		return list.set(index, element);
+	}
+
+	@Override
+	public void add(int index, Contract element) {
+		list.add(index, element);
+	}
+
+	@Override
+	public Contract remove(int index) {
+		return list.remove(index);
+	}
+
+	@Override
+	public int indexOf(Object o) {
+		return list.indexOf(o);
+	}
+
+	@Override
+	public int lastIndexOf(Object o) {
+		return list.lastIndexOf(o);
+	}
+
+	@Override
+	public ListIterator<Contract> listIterator() {
+		return list.listIterator();
+	}
+
+	@Override
+	public ListIterator<Contract> listIterator(int index) {
+		return list.listIterator(index);
+	}
+
+	@Override
+	public List<Contract> subList(int fromIndex, int toIndex) {
+		return list.subList(fromIndex, toIndex);
+	}
+	
+}

@@ -3,17 +3,17 @@ package be.ac.ua.processor;
 import com.microsoft.z3.Context;
 import com.microsoft.z3.Z3Exception;
 
-public class SMTSolver {
+public class SMTSolverWrapper {
 	
-	private static SMTSolver me;
+	private static SMTSolverWrapper me;
 	private Context ctx;
 
-	private SMTSolver() {
+	private SMTSolverWrapper() {
 	}
 	
-	public static SMTSolver getInstance(){
+	public static SMTSolverWrapper getInstance(){
 		if(me==null){
-			me = new SMTSolver();
+			me = new SMTSolverWrapper();
 		}
 		return me;
 	}

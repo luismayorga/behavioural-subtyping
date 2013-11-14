@@ -1,0 +1,26 @@
+package be.ac.ua.contracts;
+
+public class ContractPair {
+	Contract superClassContract;
+	Contract subClassContract;
+	
+	public ContractPair(Contract superClassContract, Contract subClassContract) {
+		super();
+		this.superClassContract = superClassContract;
+		this.subClassContract = subClassContract;
+	}
+
+	public Contract getSuperClassContract() {
+		return superClassContract;
+	}
+
+	public Contract getSubClassContract() {
+		return subClassContract;
+	}
+	
+	public String toString(){
+		return "ContractPair: " + super.toString() + "\n" +
+				superClassContract.toString() + "\n" +
+				subClassContract.toString();
+	}
+}
