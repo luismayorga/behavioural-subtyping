@@ -28,6 +28,7 @@ public class ContractPair {
 	}
 	
 	public void compare(){
+		
 		Context ctx=null;
 		try {
 			ctx = new Context();
