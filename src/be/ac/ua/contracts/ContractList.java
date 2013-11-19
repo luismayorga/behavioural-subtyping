@@ -13,36 +13,54 @@ import javax.tools.Diagnostic.Kind;
 
 import be.ac.ua.processor.AnnotationProcessor;
 
+/**
+ * Implementation of a list of contracts.
+ * 
+ * @author Luis Mayorga
+ */
 public class ContractList implements List<Contract>{
 
 	private ArrayList<Contract> list;
-	
+
 	public ContractList() {
 		super();
 		list = new ArrayList<Contract>();
 	}
-	
+
+	/**
+	 * Joins a list of contracts with another joining the contracts by their
+	 * type.
+	 * 
+	 * @param subList Annotations present on the overriding element of the subclass
+	 * @return A list containing pairs of the same type of contract.
+	 */
 	public List<ContractPair> join(ContractList subList){
+		
 		ArrayList<ContractPair> temp = new ArrayList<ContractPair>();
 		Set<DeclaredType> set = new HashSet<DeclaredType>();
 		boolean found;
+		
 		for (Contract contract : list) {
 			found = false;
 			for (Contract con : subList) {
 				if(contract.getAm().getAnnotationType()
 						.equals(con.getAm().getAnnotationType())){
-					
+
 					temp.add(contract.join(con));
 					set.add(contract.getAm().getAnnotationType());
 					found = true;
 					break;
 				}
 			}
+			// That type of contract is not attached to the element of the subclass
+			// Being inherited
 			if(!found){
 				AnnotationProcessor.getMessager().printMessage(Kind.NOTE, 
 						"Contract not defined for subclass", contract.getEm(), contract.getAm());
 			}
 		}
+		// Contracts that override none from the superclass.
+		// Error due to the contract being more restrictive
 		for (Contract con : subList) {
 			if(!set.contains(con.getAm().getAnnotationType())){
 				AnnotationProcessor.getMessager().printMessage(Kind.ERROR, 
@@ -166,5 +184,5 @@ public class ContractList implements List<Contract>{
 	public List<Contract> subList(int fromIndex, int toIndex) {
 		return list.subList(fromIndex, toIndex);
 	}
-	
+
 }

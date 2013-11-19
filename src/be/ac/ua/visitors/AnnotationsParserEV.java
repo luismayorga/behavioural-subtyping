@@ -12,12 +12,18 @@ import be.ac.ua.contracts.Contract;
 import be.ac.ua.contracts.ContractList;
 
 /**
- * Class that implements an ElementVisitor that adds the functionality
- * of checking if the annotations are well formed and
- * if all the identifiers used on them correspond to the element.
+ * Class that adds to an Element the functionality
+ * of retrieving the contracts within it.
+ * 
+ * @author Luis Mayorga
  */
 public class AnnotationsParserEV implements ElementVisitor<ContractList, Void> {
 
+	/**
+	 * Return the contracts present in the element.
+	 * 
+	 * @param e Element containing the annotations.
+	 */
 	@Override
 	public ContractList visit(Element e, Void p) {
 		ContractList cons = new ContractList();

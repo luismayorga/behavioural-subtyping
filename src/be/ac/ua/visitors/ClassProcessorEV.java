@@ -17,14 +17,18 @@ import be.ac.ua.contracts.ContractList;
 import be.ac.ua.contracts.ContractPair;
 import be.ac.ua.processor.AnnotationProcessor;
 /**
- * Processes a class, extracting its structure to an internal representation 
- * and stores the contracts within it as well as the relationship with the
- * other classes.
+ * Operation for an Element. Processes a class and if this inherits from a 
+ * superclass, matches the contracts from all the elements of the superclass to
+ * the contracts of the overriding fields or methods and check for the latter
+ * being more restrictive than the first.
+ * 
+ * @author Luis Mayorga
  */
 public class ClassProcessorEV implements ElementVisitor<Void, Void> {
 
 	@Override
 	public Void visit(Element e, Void p) {
+		//Get superclass
 		TypeMirror dt = ((TypeElement)e).getSuperclass();
 		boolean same = AnnotationProcessor.getTypeUtils()
 				.isSameType(AnnotationProcessor.getElementUtils()
@@ -32,11 +36,14 @@ public class ClassProcessorEV implements ElementVisitor<Void, Void> {
 		// If does not inherit from Object
 		if(!same){
 			Element superElement = AnnotationProcessor.getTypeUtils().asElement(dt);
+			//Compare elements
 			for(Element subClassElement : e.getEnclosedElements()){
 				for (Element superClassElement : superElement.getEnclosedElements()) {
+					//If its a method should not be checked
 					if(subClassElement.getModifiers().contains(Modifier.PRIVATE) 
 							|| superClassElement.getModifiers().contains(Modifier.PRIVATE)){
 						continue;
+					// If is the same type of element and has the same signature
 					} else if(subClassElement.getSimpleName().equals(superClassElement.getSimpleName()) && 
 							((superClassElement.getKind().equals(ElementKind.METHOD) 
 							&& subClassElement.getKind().equals(ElementKind.METHOD)
@@ -45,16 +52,20 @@ public class ClassProcessorEV implements ElementVisitor<Void, Void> {
 							|| (superClassElement.getKind().equals(ElementKind.FIELD) 
 							&& subClassElement.getKind().equals(ElementKind.FIELD)))){
 						
+						//Get annotations from superclass and subclass
 						ContractList superClassContracts = superClassElement
 								.accept(new AnnotationsParserEV(), null);
 						ContractList subClassContracts = subClassElement
 								.accept(new AnnotationsParserEV(), null);
 						
+						//Join contracts based on their type
 						List<ContractPair> join = superClassContracts.join(subClassContracts);
+						//Compare all contracts
 						for (ContractPair contractPair : join) {
 							contractPair.compare();
 						}
 					}else{
+						//Not an overriding method
 						continue;
 					}
 				}

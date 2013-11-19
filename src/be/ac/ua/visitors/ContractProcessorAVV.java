@@ -10,6 +10,11 @@ import javax.lang.model.type.TypeMirror;
 
 import be.ac.ua.contracts.Contract;
 
+/**
+ * Transform an annotation into a contract.
+ * 
+ * @author Luis Mayorga
+ */
 public class ContractProcessorAVV implements AnnotationValueVisitor<Contract, Void> {
 
 	@Override
@@ -62,10 +67,14 @@ public class ContractProcessorAVV implements AnnotationValueVisitor<Contract, Vo
 		return null;
 	}
 
+	/**
+	 * Creates a contract from a string.
+	 * 
+	 * @param s The string containing the contract.
+	 */
 	@Override
 	public Contract visitString(String s, Void p) {
 		Contract cont = new Contract(s);
-		//TODO Process contract
 		return cont;
 	}
 

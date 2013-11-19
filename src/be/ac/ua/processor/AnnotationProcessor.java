@@ -17,6 +17,11 @@ import javax.lang.model.util.Types;
 
 import be.ac.ua.visitors.ClassProcessorEV;
 
+/**
+ * Point of access to the Java Annotation Processing API.
+ * 
+ * @author Luis Mayorga
+ */
 @SupportedAnnotationTypes({"be.ac.ua.annotations.*"})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class AnnotationProcessor extends AbstractProcessor {
