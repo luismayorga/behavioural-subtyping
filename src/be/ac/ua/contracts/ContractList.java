@@ -43,9 +43,9 @@ public class ContractList implements List<Contract>{
 		for (Contract contract : list) {
 			found = false;
 			for (Contract con : subList) {
-				if(contract.getAm().getAnnotationType()
-						.equals(con.getAm().getAnnotationType())){
-
+				if(AnnotationProcessor.getTypeUtils().isSameType(
+						contract.getAm().getAnnotationType(), 
+						con.getAm().getAnnotationType())){
 					temp.add(contract.join(con));
 					set.add(contract.getAm().getAnnotationType());
 					found = true;

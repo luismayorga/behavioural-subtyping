@@ -84,10 +84,19 @@ public class ContractPair {
 			Solver s = ctx.MkSolver();
 			s.Assert(f);
 			if(s.Check().equals(Status.SATISFIABLE)){
-				AnnotationProcessor.getMessager().printMessage(Kind.ERROR,
-						"The precondition of the element present in the " 
-								+ "subclass is more restrictive",
-								subClassContract.getEm(), subClassContract.getAm());
+				if(	AnnotationProcessor.getTypeUtils().isSameType(superClassContract.getAm().getAnnotationType(),
+						AnnotationProcessor.getElementUtils().getTypeElement("be.ac.ua.annotations.requires").asType())){
+					AnnotationProcessor.getMessager().printMessage(Kind.ERROR,
+							"The precondition on the subclass is more restrictive",
+									subClassContract.getEm(), subClassContract.getAm());
+
+				}else if(AnnotationProcessor.getTypeUtils().isSameType(superClassContract.getAm().getAnnotationType(),
+						AnnotationProcessor.getElementUtils().getTypeElement("be.ac.ua.annotations.invariant").asType())){
+
+					AnnotationProcessor.getMessager().printMessage(Kind.ERROR,
+							"The invariant on the subclass is more restrictive",
+									subClassContract.getEm(), subClassContract.getAm());
+				}
 			}
 			ctx.Dispose();
 		} catch (Z3Exception e) {e.printStackTrace();}

@@ -39,7 +39,7 @@ public class ClassProcessorEV implements ElementVisitor<Void, Void> {
 			//Compare elements
 			for(Element subClassElement : e.getEnclosedElements()){
 				for (Element superClassElement : superElement.getEnclosedElements()) {
-					//If its a method should not be checked
+					//If it is private, it should not be checked
 					if(subClassElement.getModifiers().contains(Modifier.PRIVATE) 
 							|| superClassElement.getModifiers().contains(Modifier.PRIVATE)){
 						continue;
