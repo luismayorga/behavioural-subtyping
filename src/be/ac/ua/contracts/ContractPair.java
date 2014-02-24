@@ -63,8 +63,19 @@ public class ContractPair {
 			List<Symbol> syms = new ArrayList<Symbol>();
 			List<FuncDecl> funs = new ArrayList<FuncDecl>();
 
-			String superformula = superClassContract.getContent();
-			String subformula = "(not " + subClassContract.getContent() + ")";
+			String superformula;
+			String subformula;
+			
+			//Quick fix; If the contract is ensures, swap terms
+			if(AnnotationProcessor.getTypeUtils().isSameType(superClassContract.getAm().getAnnotationType(),
+					AnnotationProcessor.getElementUtils().getTypeElement("be.ac.ua.annotations.ensures").asType())){
+				superformula = "(not " + superClassContract.getContent() + ")";
+				subformula = subClassContract.getContent();
+			}else{
+				 superformula = superClassContract.getContent();
+				 subformula = "(not " + subClassContract.getContent() + ")";
+			}
+			
 			for (String id : superClassContract.getIdentifiers()) {
 				StringSymbol sym = ctx.MkSymbol(id);
 				syms.add(sym);
@@ -88,14 +99,21 @@ public class ContractPair {
 						AnnotationProcessor.getElementUtils().getTypeElement("be.ac.ua.annotations.requires").asType())){
 					AnnotationProcessor.getMessager().printMessage(Kind.ERROR,
 							"The precondition on the subclass is more restrictive",
-									subClassContract.getEm(), subClassContract.getAm());
+							subClassContract.getEm(), subClassContract.getAm());
 
 				}else if(AnnotationProcessor.getTypeUtils().isSameType(superClassContract.getAm().getAnnotationType(),
 						AnnotationProcessor.getElementUtils().getTypeElement("be.ac.ua.annotations.invariant").asType())){
 
 					AnnotationProcessor.getMessager().printMessage(Kind.ERROR,
 							"The invariant on the subclass is more restrictive",
-									subClassContract.getEm(), subClassContract.getAm());
+							subClassContract.getEm(), subClassContract.getAm());
+
+				}else if(AnnotationProcessor.getTypeUtils().isSameType(superClassContract.getAm().getAnnotationType(),
+						AnnotationProcessor.getElementUtils().getTypeElement("be.ac.ua.annotations.ensures").asType())){
+
+					AnnotationProcessor.getMessager().printMessage(Kind.ERROR,
+							"The postcondition on the subclass is weaker",
+							subClassContract.getEm(),subClassContract.getAm());
 				}
 			}
 			ctx.Dispose();
