@@ -19,4 +19,4 @@ As stated, this work is only a proof of concept and is not suitable for its use 
 
 The contracts must be written in [SMT-Lib](http://www.smtlib.org/) format and only integer values are accepted.
 
-More information about the motivation for this work and its usage can be found in the related [paper](https://www.dropbox.com/s/8za9s4388layh10/StaticBehaviouralSubtypingMayorga.pdf).
+More information about the motivation for this work and its usage can be found in the related [paper](report.pdf).
